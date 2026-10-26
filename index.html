@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A0F2C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CONECTA">
+<meta name="description" content="CONECTA — A Arte de se Comunicar. Jogo educativo de comunicação com aulas, quiz, missões, XP e conquistas.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>CONECTA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400..700&display=swap">
+<style>
+/* Layout: app de uma coluna no celular com menu inferior; no computador o menu vira uma coluna lateral. Cartões escuros com brilho violeta e ciano. */
+:root{
+  --bg:#0A0F2C; --bg-2:#0F1740; --surface:#131B46; --surface-2:#1B2560; --line:rgba(157,176,255,.18);
+  --fg:#EEF1FF; --muted:#A3AEDD; --violet:#8B5CF6; --cyan:#22D3EE; --ink:#04112E;
+  --good:#34D399; --bad:#FB7185; --warn:#FBBF24;
+  --grad:linear-gradient(90deg,#8B5CF6,#22D3EE);
+  --display:'Bricolage Grotesque','Avenir Next','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',-apple-system,'Segoe UI',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{
+  margin:0;min-height:100vh;color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  background-color:var(--bg);
+  background-image:radial-gradient(48rem 26rem at 90% -8%,rgba(139,92,246,.30),transparent 62%),radial-gradient(34rem 22rem at -10% 6%,rgba(34,211,238,.14),transparent 62%);
+  background-repeat:no-repeat;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:12px 112px;
+}
+button{font-family:inherit}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
+p{margin:0}
+.app{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+svg.i{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+/* topo */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:4px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{width:38px;height:38px;flex:none}
+.brand b{font-family:var(--display);font-size:22px;letter-spacing:.14em;font-weight:800;display:block;line-height:1}
+.brand small{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:rgba(34,211,238,.12);color:var(--cyan);font-weight:700;font-size:13px;border:1px solid rgba(34,211,238,.28);white-space:nowrap}
+.warnbar{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);color:var(--warn);padding:10px 14px;border-radius:14px;font-size:14px}
+
+/* base */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px}
+.card h2{font-size:20px;margin-bottom:8px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:12px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--cyan)}
+.btn{min-height:52px;border-radius:16px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-weight:700;font-size:16px;padding:0 20px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .12s,filter .15s;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--cyan);color:var(--ink);border-color:transparent}
+.btn.violet{background:var(--violet);color:#fff;border-color:transparent}
+.btn.danger{background:rgba(251,113,133,.14);color:var(--bad);border-color:rgba(251,113,133,.45)}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.bar{height:10px;border-radius:999px;background:rgba(157,176,255,.16);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:999px;background:var(--grad);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bar.thin{height:6px}
+
+/* hero */
+.hero{border-radius:26px;padding:20px;background:linear-gradient(140deg,#4B24B8 0%,#1B2A7A 55%,#0E4E72 100%);border:1px solid rgba(190,200,255,.25);display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;border:2px solid rgba(255,255,255,.12);box-shadow:0 0 0 22px rgba(255,255,255,.04)}
+.hero h1{font-size:30px;font-weight:800}
+.hero .lvl{font-family:var(--display);font-size:18px;font-weight:700}
+.hero .bar{background:rgba(255,255,255,.2)}
+.hero .meta{display:flex;justify-content:space-between;font-size:14px;color:#D5DBFF;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:rgba(255,255,255,.1);border-radius:16px;padding:10px 8px;text-align:center}
+.stat b{font-family:var(--display);font-size:22px;display:block;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:#D5DBFF}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left;cursor:pointer;color:var(--fg);width:100%}
+.ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(34,211,238,.25));color:var(--cyan);flex:none}
+.ico svg{width:24px;height:24px}
+
+/* lista de aulas e quizzes */
+.item-card{display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);width:100%;text-align:left;color:var(--fg);cursor:pointer;min-height:76px}
+.item-card:hover{border-color:rgba(34,211,238,.5)}
+.item-card h3{font-size:17px}
+.item-card p{font-size:14px;color:var(--muted)}
+.badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(139,92,246,.2);color:#C9B8FF;white-space:nowrap}
+.badge.ok{background:rgba(52,211,153,.16);color:var(--good)}
+.badge.next{background:rgba(34,211,238,.16);color:var(--cyan)}
+.check{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;border:2px solid var(--line);color:transparent}
+.check.on{background:var(--good);border-color:var(--good);color:var(--ink)}
+.check svg{width:16px;height:16px;stroke-width:3}
+
+/* segmented */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.seg button{min-height:46px;border-radius:13px;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:15px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface-2);color:var(--fg);box-shadow:0 0 0 1px rgba(34,211,238,.4) inset}
+
+/* aula */
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--cyan);font-weight:700;font-size:15px;padding:8px 0;cursor:pointer;min-height:44px;align-self:flex-start}
+.l-hero{display:flex;gap:14px;align-items:center}
+.l-hero h1{font-size:28px;font-weight:800}
+.l-hero .ico{width:60px;height:60px;border-radius:18px}
+.l-hero .ico svg{width:30px;height:30px}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:65ch}
+.terms{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.terms li{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;padding:12px 14px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.28);border-radius:16px}
+.terms b{color:#D7CBFF;font-family:var(--display)}
+.callout{padding:14px 16px;border-radius:16px;background:rgba(34,211,238,.09);border:1px solid rgba(34,211,238,.3);font-size:15px}
+.callout b{color:var(--cyan)}
+.fig{margin:0;background:var(--bg-2);border:1px solid var(--line);border-radius:18px;padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px}
+.fig svg{width:100%;height:auto;display:block;max-width:520px;margin:0 auto}
+.fig text{font-family:var(--body);fill:var(--fg);font-weight:700;font-size:13px;text-anchor:middle}
+.fig text.m{fill:var(--muted);font-size:11.5px;font-weight:600}
+.fig figcaption{font-size:14px;color:var(--muted);text-align:center;max-width:46ch;margin:0 auto}
+.example{border-left:4px solid var(--violet);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px}
+.example b{font-family:var(--display)}
+.act-prompt{font-weight:600}
+.item{padding:14px;border-radius:18px;background:var(--bg-2);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.item.ok{border-color:rgba(52,211,153,.55)}
+.item.shake{animation:shake .35s}
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.cat{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font-weight:600;font-size:15px;cursor:pointer}
+.cat.on{background:var(--good);color:var(--ink);border-color:transparent}
+.cat.bad{opacity:.45;text-decoration:line-through}
+.cat[disabled]:not(.on):not(.bad){opacity:.4}
+.opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:14px;min-height:60px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font-size:16px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover:not([disabled]){border-color:rgba(34,211,238,.6)}
+.opt .l{width:30px;height:30px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-weight:800;font-size:14px;flex:none;font-family:var(--display)}
+.opt.ok{border-color:var(--good);background:rgba(52,211,153,.12)}
+.opt.ok .l{background:var(--good);color:var(--ink)}
+.opt.bad{border-color:var(--bad);background:rgba(251,113,133,.12)}
+.opt.bad .l{background:var(--bad);color:var(--ink)}
+.opt[disabled]{cursor:default}
+.opt.dim{opacity:.55}
+.fb{padding:14px 16px;border-radius:16px;font-size:15px;animation:rise .3s}
+.fb.ok{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.45)}
+.fb.bad{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.45)}
+.fb b{display:block;margin-bottom:2px}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--muted)}
+.qtext{font-family:var(--display);font-size:23px;font-weight:700;line-height:1.25}
+.score-ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;margin:0 auto;background:conic-gradient(var(--cyan) calc(var(--p)*1%),rgba(157,176,255,.16) 0);position:relative}
+.score-ring::before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--surface)}
+.score-ring b{position:relative;font-family:var(--display);font-size:36px;font-variant-numeric:tabular-nums}
+.stars{display:flex;justify-content:center;gap:6px;color:rgba(157,176,255,.3)}
+.stars svg{width:30px;height:30px}
+.stars .on{color:var(--warn);fill:var(--warn)}
+.xpgain{text-align:center;font-family:var(--display);font-size:26px;font-weight:800;color:var(--cyan)}
+
+/* missões */
+.mission{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.mission.done{border-color:rgba(52,211,153,.45)}
+.m-head{display:flex;align-items:center;gap:12px;padding:14px;width:100%;background:none;border:0;color:var(--fg);text-align:left;cursor:pointer;min-height:68px}
+.m-head h3{font-size:17px}
+.m-body{padding:0 14px 16px;display:flex;flex-direction:column;gap:12px}
+.step{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--bg-2);border:1px solid var(--line);width:100%;text-align:left;color:var(--fg);font-size:15px;cursor:pointer;min-height:48px}
+.step .check{width:26px;height:26px}
+.step[disabled]{cursor:default}
+
+/* perfil */
+.avatar{width:72px;height:72px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-family:var(--display);font-size:32px;font-weight:800;color:var(--ink);flex:none}
+.field{display:flex;gap:10px}
+.field input{flex:1;min-width:0;min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--bg-2);color:var(--fg);padding:0 14px;font-size:16px;font-family:var(--body)}
+.pstats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pstat{padding:14px;border-radius:16px;background:var(--bg-2);border:1px solid var(--line)}
+.pstat b{font-family:var(--display);font-size:24px;display:block;font-variant-numeric:tabular-nums}
+.pstat span{font-size:13px;color:var(--muted)}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.ach{padding:14px;border-radius:18px;background:var(--bg-2);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;min-width:0}
+.ach .ico{width:42px;height:42px}
+.ach.lock{opacity:.6}
+.ach.lock .ico{background:rgba(157,176,255,.12);color:var(--muted)}
+.ach.got{border-color:rgba(251,191,36,.5);background:linear-gradient(160deg,rgba(251,191,36,.1),var(--bg-2))}
+.ach.got .ico{background:rgba(251,191,36,.18);color:var(--warn)}
+.ach h3{font-size:15px}
+.ach p{font-size:13px;color:var(--muted)}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:52px;background:none;border:0;color:var(--fg);font-size:16px;cursor:pointer;padding:0;text-align:left}
+.switch i{width:50px;height:30px;border-radius:999px;background:rgba(157,176,255,.25);position:relative;flex:none;transition:background .2s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
+.switch[aria-checked=true] i{background:var(--cyan)}
+.switch[aria-checked=true] i::after{transform:translateX(20px)}
+.levels{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.levels li{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:12px;font-size:14px;background:var(--bg-2);color:var(--muted)}
+.levels li.cur{background:rgba(34,211,238,.14);color:var(--fg);font-weight:700;box-shadow:0 0 0 1px rgba(34,211,238,.45) inset}
+.levels li.past{color:var(--fg)}
+
+/* menu */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:4px;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(10,15,44,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:58px;border:0;background:none;color:var(--muted);font-weight:700;font-size:12px;border-radius:16px;cursor:pointer}
+.nav button svg{width:24px;height:24px}
+.nav button[aria-current=page]{color:var(--cyan);background:rgba(34,211,238,.12)}
+@media(min-width:860px){
+  body{padding-left:calc(104px + max(24px,env(safe-area-inset-left,0px)));padding-block:20px 48px}
+  .nav{top:0;right:auto;bottom:0;width:96px;flex-direction:column;justify-content:flex-start;gap:8px;padding:24px 8px 24px calc(8px + env(safe-area-inset-left,0px));border-top:0;border-right:1px solid var(--line)}
+  .nav button{flex:none;min-height:68px}
+}
+
+/* avisos */
+.toasts{position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top,0px));z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 16px;pointer-events:none}
+.toast{pointer-events:none;max-width:420px;padding:12px 16px;border-radius:16px;background:#1E2A6E;color:var(--fg);border:1px solid rgba(34,211,238,.5);font-weight:700;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.45);animation:drop .35s,fade .4s 2.6s forwards;display:flex;gap:8px;align-items:center}
+.toast.xp{color:var(--cyan)}
+.toast.ach{border-color:rgba(251,191,36,.7);color:var(--warn)}
+.toast.lvl{border-color:rgba(139,92,246,.9);color:#D7CBFF}
+.modal-bg{position:fixed;inset:0;z-index:70;background:rgba(3,6,24,.78);display:grid;place-items:center;padding:16px;animation:fade-in .2s}
+.modal{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:14px;animation:rise .25s}
+.modal h2{font-size:22px}
+
+.enter{animation:rise .35s both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@keyframes fade{to{opacity:0;transform:translateY(-6px)}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.toast{animation:none}}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top" id="top"></header>
+  <div id="warn"></div>
+  <main id="view" class="stack" style="gap:20px"></main>
+</div>
+<nav class="nav" id="nav" aria-label="Navegação principal"></nav>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="modal"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ ARMAZENAMENTO ============ */
+var KEY='conecta.v1', memOnly=false, memCopy=null;
+try{ var tk='__conecta_test'; window.localStorage.setItem(tk,'1'); window.localStorage.removeItem(tk); }catch(e){ memOnly=true; }
+function readStore(){ if(memOnly) return memCopy; try{ return window.localStorage.getItem(KEY); }catch(e){ memOnly=true; return memCopy; } }
+function writeStore(v){ memCopy=v; if(memOnly) return; try{ window.localStorage.setItem(KEY,v); }catch(e){ memOnly=true; } }
+
+/* ============ CONSTANTES ============ */
+var LESSON_XP=50, Q_XP=5, MISSION_XP=30, QUIZ_BONUS=15, MIX_SIZE=10;
+var LEVELS=[
+  {n:1,name:'Iniciante',xp:0},{n:2,name:'Curioso',xp:50},{n:3,name:'Ouvinte',xp:120},{n:4,name:'Falante',xp:220},
+  {n:5,name:'Observador',xp:350},{n:6,name:'Empático',xp:500},{n:7,name:'Assertivo',xp:660},{n:8,name:'Mediador',xp:800},
+  {n:9,name:'Conectado',xp:900},{n:10,name:'Mestre da Comunicação',xp:1000}
+];
+
+/* ============ ÍCONES ============ */
+var ICONS={
+  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/>',
+  play:'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r="1"/><circle cx="18.5" cy="14" r="1"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  ear:'<path d="M6 9a6 6 0 1 1 12 0c0 3-3 4-3 7a3 3 0 0 1-6 0"/><path d="M9 9a3 3 0 0 1 6 0"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  hand:'<path d="M8 12V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11V6a1.5 1.5 0 0 1 3 0v8c0 4-3 7-6 7s-5-2-6-5l-1-4a1.5 1.5 0 0 1 3-1l1 2"/>',
+  heart:'<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-3 4.5 4.5 0 0 1 8 3c0 6-8 11-8 11z"/>',
+  shield:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/>',
+  duo:'<path d="M3 5h10v7H7l-4 3z"/><path d="M21 10h-8v7h5l3 3z"/>',
+  phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4a3 3 0 0 0 4 4M16 6h4a3 3 0 0 1-4 4M12 13v4M8 21h8M10 17h4"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  zap:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  next:'<path d="M9 5l7 7-7 7"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2 6"/><path d="M20 4v7h-7"/>',
+  eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10c1 1 1 2 1 3h6c0-1 0-2 1-3a6 6 0 0 0-4-10z"/>',
+  flame:'<path d="M12 22c4 0 7-3 7-7 0-3-2-5-3-7-1 2-2 3-3 3 0-3-1-6-4-9-1 4-4 6-4 12 0 4 3 8 7 8z"/>'
+};
+function icon(n){ return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[n]||'')+'</svg>'; }
+var LOGO='<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs><rect width="40" height="40" rx="12" fill="#131B46"/><circle cx="14" cy="20" r="7" fill="none" stroke="url(#lg)" stroke-width="3"/><circle cx="26" cy="20" r="7" fill="none" stroke="url(#lg)" stroke-width="3"/></svg>';
+
+/* ============ CONTEÚDO: AULAS ============ */
+var LESSONS=[
+{id:1,icon:'chat',title:'Comunicação: o que é?',sub:'Emissor, mensagem, receptor e contexto',
+ intro:'Comunicar é trocar mensagens para que duas ou mais pessoas compartilhem ideias, sentimentos e informações. Acontece o tempo todo: numa conversa, num bilhete, numa mensagem de celular, até num olhar.',
+ points:[['Emissor','Quem envia a mensagem. Pode ser você, um professor, uma amiga.'],['Mensagem','A ideia, o sentimento ou a informação que se quer passar.'],['Receptor','Quem recebe e interpreta a mensagem. Depois, pode responder e virar emissor.'],['Contexto','A situação em volta: lugar, momento, relação entre as pessoas e o que cada uma já sabe.']],
+ more:'<b>Ruído</b> é tudo que atrapalha a mensagem: barulho, pressa, distração ou palavras confusas. Por isso a comunicação só dá certo quando o receptor entende o que o emissor quis dizer, e não quando o emissor termina de falar.',
+ example:{title:'O “daqui a pouco” de Ana',text:'Ana manda um áudio para o Bruno: “Chego daqui a pouco”. Para ela, pouco são 10 minutos. Bruno entendeu uma hora e saiu para fazer outra coisa. A mensagem foi imprecisa e cada um a interpretou com o seu contexto. Dizer “Chego às 15h30” evitaria o problema.'},
+ activity:{type:'classify',prompt:'Associe cada trecho ao elemento da comunicação que ele representa.',cats:['Emissor','Mensagem','Receptor','Contexto'],items:[
+  {t:'Marina, que está contando uma novidade ao irmão.',a:0},
+  {t:'O irmão de Marina, que ouve e interpreta o que ela diz.',a:2},
+  {t:'A frase “Passei na prova!”.',a:1},
+  {t:'Uma sala barulhenta durante o intervalo da escola.',a:3},
+  {t:'Carlos, que escreve um bilhete para um colega.',a:0}]}},
+{id:2,icon:'ear',title:'Escuta ativa',sub:'Atenção, silêncio respeitoso e interesse',
+ intro:'Ouvir é um ato do corpo: o som chega aos ouvidos. Escutar é prestar atenção ao sentido do que o outro diz. A escuta ativa é escutar de propósito, com atenção total e mostrando isso à pessoa.',
+ points:[['Prestar atenção','Guarde o celular, olhe para a pessoa e deixe distrações de lado.'],['Não interromper','Espere a pessoa terminar a ideia antes de falar. Pausas fazem parte da conversa.'],['Demonstrar interesse','Acene, mantenha o olhar e faça perguntas abertas, como “Como você se sentiu?”.'],['Parafrasear','Repita com as suas palavras o que entendeu: “Se entendi bem, você ficou chateado porque…”.']],
+ more:'Evite dar conselho cedo demais. Muitas vezes quem desabafa quer, primeiro, ser compreendido. Resolver o problema vem depois.',
+ example:{title:'Léo e a apresentação',text:'Léo conta que está nervoso com a apresentação de amanhã. Resposta ruim: “Ah, eu já passei por coisa pior…”, que tira o foco dele. Resposta com escuta ativa: “Parece que isso te preocupa muito. O que mais te deixa nervoso?”.'},
+ activity:{type:'choose',prompt:'Camila diz: “Estou chateada, briguei com minha melhor amiga.” Qual resposta mostra escuta ativa?',options:[
+  {t:'“Isso não é nada. Semana passada eu briguei com três pessoas!”',ok:0,fb:'Isso muda o foco para você e diminui o que ela sente.'},
+  {t:'“Você parece triste com isso. Quer me contar o que aconteceu?”',ok:1,fb:'Você reconhece o sentimento e convida a pessoa a falar.'},
+  {t:'“Esquece isso, vamos falar de outra coisa.”',ok:0,fb:'Mudar de assunto mostra que você não quer escutar.'},
+  {t:'“Você deve ter errado, né? Pede desculpa logo.”',ok:0,fb:'Julgar e aconselhar antes de entender fecha a conversa.'}]}},
+{id:3,icon:'mic',title:'Comunicação verbal',sub:'Clareza, tom de voz e escolha das palavras',
+ intro:'Comunicação verbal é tudo que expressamos com palavras, faladas ou escritas. Não basta ter uma boa ideia: é preciso dizê-la de um jeito que o outro consiga entender.',
+ points:[['Clareza','Frases curtas, uma ideia por vez e informações precisas, como dia, hora e lugar.'],['Tom de voz','Volume, ritmo e entonação mudam o sentido. “Tudo bem.” pode soar carinhoso ou irritado.'],['Escolha das palavras','Use palavras que o outro conhece. Evite “sempre” e “nunca” em críticas, porque soam como ataque.'],['Pausas','Dão tempo para o outro acompanhar e destacam o que é importante.']],
+ more:'Antes de falar algo importante, pergunte-se: o que eu quero que a outra pessoa entenda e faça depois de me ouvir?',
+ example:{title:'Pedido confuso, pedido claro',text:'“Faz aquilo lá pra mim?” deixa o outro adivinhando. “Pode enviar o relatório até as 17h?” diz o que, quando e para quem. O segundo pedido evita perguntas, atrasos e irritação.'},
+ activity:{type:'classify',prompt:'Classifique cada frase como clara ou confusa.',cats:['Clara','Confusa'],items:[
+  {t:'“Preciso do trabalho pronto até sexta, às 18h.”',a:0},
+  {t:'“Me manda aquilo quando der.”',a:1},
+  {t:'“Vamos nos encontrar às 14h na entrada da biblioteca.”',a:0},
+  {t:'“A gente se vê por aí, depois a gente combina o negócio.”',a:1},
+  {t:'“Não gostei da nota. Posso conversar com você sobre os critérios?”',a:0}]}},
+{id:4,icon:'hand',title:'Comunicação não verbal',sub:'Gestos, postura e expressões do rosto',
+ intro:'Mesmo em silêncio comunicamos. A comunicação não verbal reúne gestos, postura, expressão do rosto, contato visual, distância entre as pessoas e até o jeito da voz.',
+ points:[['Gestos','Mãos e cabeça reforçam ou substituem palavras, como um aceno ou um polegar para cima.'],['Postura','Corpo voltado para a pessoa mostra atenção. Ombros caídos podem indicar cansaço ou desânimo.'],['Expressão facial','Sorriso, testa franzida e sobrancelhas erguidas mostram emoções.'],['Contato visual','Olhar de forma natural transmite interesse e confiança.']],
+ more:'Quando as palavras dizem uma coisa e o corpo outra, as pessoas tendem a acreditar mais no corpo e no tom de voz. Mas atenção: um único gesto não prova nada. Observe o conjunto e lembre que culturas diferentes dão significados diferentes aos gestos.',
+ example:{title:'“Estou ouvindo”',text:'Pedro diz “estou ouvindo”, mas está de braços cruzados e olhando o relógio. A mensagem verbal diz uma coisa e o corpo diz outra. Quem fala percebe e sente que não é importante.'},
+ activity:{type:'choose',prompt:'Um colega diz “estou ótimo!”, mas está com os ombros caídos, olhando para o chão e com a voz baixa. O que é melhor fazer?',options:[
+  {t:'Dizer que ele está mentindo e cobrar a verdade.',ok:0,fb:'Concluir sozinho e cobrar pode deixá-lo na defensiva.'},
+  {t:'Ignorar, porque ele disse que está tudo bem.',ok:0,fb:'Os sinais do corpo mostram que pode haver algo errado.'},
+  {t:'Perguntar com gentileza se está tudo bem e deixar a porta aberta para conversar.',ok:1,fb:'Você usa os sinais como pista e respeita o tempo dele.'},
+  {t:'Rir e fazer uma brincadeira sobre o jeito dele.',ok:0,fb:'Brincar pode magoar alguém que já não está bem.'}]}},
+{id:5,icon:'heart',title:'Empatia',sub:'Diferentes perspectivas e sentimentos',
+ intro:'Empatia é a capacidade de compreender o que outra pessoa sente e pensa, olhando a situação do ponto de vista dela. Ela é a base de boas conversas e de boas amizades.',
+ points:[['Empatia não é concordar','Você pode entender o motivo de alguém se sentir assim sem concordar com tudo.'],['Empatia não é pena','Pena olha de cima. Empatia olha de igual para igual.'],['Perguntar antes de julgar','“O que aconteceu?” revela o que a aparência não mostra.'],['Validar sentimentos','Dizer “faz sentido você se sentir assim” acolhe, sem precisar resolver nada.']],
+ more:'Frases que minimizam, como “não foi nada” ou “relaxa”, fazem a pessoa se sentir ainda mais sozinha. Prefira reconhecer o que ela sente.',
+ example:{title:'O colega atrasado',text:'Um colega chega atrasado ao trabalho em grupo e você fica irritado. Depois descobre que ele levou o irmão pequeno ao médico. Ao perguntar primeiro, você vê a situação inteira e escolhe uma resposta melhor.'},
+ activity:{type:'choose',prompt:'Seu colega perdeu o campeonato e está desanimado. Qual resposta é empática?',options:[
+  {t:'“Não foi nada, é só um jogo.”',ok:0,fb:'Isso minimiza o sentimento dele.'},
+  {t:'“Eu avisei que ia dar errado.”',ok:0,fb:'Cobrar o erro só aumenta a tristeza.'},
+  {t:'“Imagino que seja frustrante depois de tanto treino. Quer conversar?”',ok:1,fb:'Você reconhece o que ele sente e se coloca à disposição.'},
+  {t:'“Tem gente com problemas bem piores, sabia?”',ok:0,fb:'Comparar dores invalida o que a pessoa sente.'}]}},
+{id:6,icon:'shield',title:'Comunicação assertiva',sub:'Opiniões expressas com respeito',
+ intro:'Assertividade é dizer o que pensa, sente e precisa com clareza e respeito, considerando também o outro. Existem três jeitos de reagir diante de um desconforto.',
+ points:[['Passivo','Se cala, evita conflito e concorda com tudo. Costuma acumular ressentimento.'],['Agressivo','Impõe, grita, acusa ou humilha. Resolve na hora e destrói a confiança.'],['Assertivo','Fala com firmeza e gentileza, focando no fato e no que sente.']],
+ more:'Uma boa técnica é a mensagem em primeira pessoa: “Eu me sinto [sentimento] quando [situação]. Gostaria que [pedido].” Ser assertivo não garante que o outro concorde, mas garante que você se expressou com respeito.',
+ example:{title:'Trabalho em grupo',text:'Um colega não entregou a sua parte. Passivo: faz tudo calado. Agressivo: “Você é um irresponsável!”. Assertivo: “Fiquei preocupada porque a sua parte não chegou. Podemos combinar um novo prazo hoje?”.'},
+ activity:{type:'classify',prompt:'Classifique cada reação em passiva, agressiva ou assertiva.',cats:['Passiva','Agressiva','Assertiva'],items:[
+  {t:'“Tudo bem, eu refaço de novo. Não tem problema.” (e fica com raiva em silêncio)',a:0},
+  {t:'“Você nunca escuta ninguém, é impossível trabalhar com você!”',a:1},
+  {t:'“Prefiro não emprestar meu caderno hoje, mas posso te ajudar a resumir a matéria.”',a:2},
+  {t:'“Cala a boca, a minha ideia é a única que presta!”',a:1},
+  {t:'“Eu discordo dessa parte do plano. Posso explicar meu motivo?”',a:2},
+  {t:'Fica quieto e concorda com tudo para não causar problema.',a:0}]}},
+{id:7,icon:'duo',title:'Conflitos e diálogo',sub:'Resolver desentendimentos sem agressividade',
+ intro:'Conflitos fazem parte da vida: pessoas pensam e sentem diferente. O problema não é discordar, e sim o jeito como lidamos com isso. Dá para resolver sem gritos nem ofensas.',
+ points:[['1. Respirar','Espere a emoção baixar antes de falar. Decisões tomadas com raiva costumam piorar tudo.'],['2. Escolher o momento','Converse em particular, com calma e sem plateia.'],['3. Falar do fato','Descreva o que aconteceu e o que sentiu, sem atacar a pessoa.'],['4. Escutar a outra versão','Pergunte e escute. Pode haver algo que você não sabia.'],['5. Buscar soluções','Procure um acordo que respeite os dois lados e combine o próximo passo.']],
+ more:'Se a conversa não avança e a tensão cresce, peça ajuda de alguém de confiança, como um professor ou um responsável, para mediar. Evite ironia, ofensas, generalizações e trazer assuntos antigos.',
+ example:{title:'O segredo contado',text:'Duas amigas brigam porque uma contou um segredo da outra. Em vez de expor a amiga no grupo, a que se magoou espera passar a raiva, a chama para conversar em particular, explica como se sentiu e escuta a explicação. Juntas combinam como guardar segredos daí em diante.'},
+ activity:{type:'choose',prompt:'Você descobriu que um amigo contou algo que você disse em segredo. Qual primeira atitude ajuda a resolver sem agressividade?',options:[
+  {t:'Contar um segredo dele para o grupo, para ficarem quites.',ok:0,fb:'Revidar cria uma briga ainda maior.'},
+  {t:'Parar de falar com ele sem explicar nada.',ok:0,fb:'O silêncio sem explicação deixa o problema sem solução.'},
+  {t:'Respirar, chamá-lo para conversar em particular e explicar como se sentiu.',ok:1,fb:'Você cuida da emoção, escolhe o momento e foca no que sentiu.'},
+  {t:'Escrever no grupo o que ele fez, para todos saberem.',ok:0,fb:'Expor a pessoa em público transforma o problema em humilhação.'}]}},
+{id:8,icon:'phone',title:'Comunicação digital',sub:'Mensagens, mal-entendidos e responsabilidade online',
+ intro:'Em mensagens de texto faltam tom de voz, rosto e gestos. Por isso é fácil entender errado. Além disso, o que é publicado pode ser copiado, compartilhado e continuar existindo por muito tempo.',
+ points:[['Releia antes de enviar','Pergunte-se como a outra pessoa vai entender o que você escreveu.'],['Cuidado com MAIÚSCULAS','Textos todos em maiúsculas parecem gritos.'],['Pergunte antes de supor','Se algo pareceu rude, pergunte “o que você quis dizer?”.'],['Respeite a privacidade','Não repasse prints, fotos ou áudios de outras pessoas sem permissão.'],['Confira antes de repassar','Verifique se uma notícia é confiável antes de compartilhar.']],
+ more:'Ao ver alguém ser humilhado online, não entre na brincadeira. Apoie a pessoa, guarde as provas, avise um adulto de confiança e use as ferramentas de denúncia da plataforma.',
+ example:{title:'Um “ok.” que pareceu frio',text:'Julia responde “ok.” ao convite de uma amiga. A amiga entende como irritação, mas Julia só estava ocupada. Um “Ok! Combinado 😊” teria passado o tom certo. Na dúvida, pergunte em vez de supor.'},
+ activity:{type:'classify',prompt:'Classifique cada atitude como boa prática ou algo a evitar.',cats:['Boa prática','Evitar'],items:[
+  {t:'Reler a mensagem antes de enviar.',a:0},
+  {t:'Responder na hora, com raiva.',a:1},
+  {t:'Perguntar o que a pessoa quis dizer antes de supor.',a:0},
+  {t:'Compartilhar print de uma conversa privada sem permissão.',a:1},
+  {t:'Checar se uma notícia é confiável antes de repassar.',a:0},
+  {t:'Escrever tudo em CAIXA ALTA.',a:1}]}}
+];
+
+/* ============ ILUSTRAÇÕES DAS AULAS ============ */
+function person(x,y,c){return '<circle cx="'+x+'" cy="'+y+'" r="16" fill="'+c+'"/><path d="M'+(x-26)+' '+(y+58)+'Q'+(x-26)+' '+(y+24)+' '+x+' '+(y+24)+'Q'+(x+26)+' '+(y+24)+' '+(x+26)+' '+(y+58)+'z" fill="'+c+'"/>';}
+var AH='<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22D3EE"/></marker></defs>';
+function face(cx,cy,mouth,brows){
+  return '<circle cx="'+cx+'" cy="'+cy+'" r="40" fill="#1B2560" stroke="#22D3EE" stroke-width="2.5"/>'+
+    '<circle cx="'+(cx-14)+'" cy="'+(cy-6)+'" r="4.5" fill="#EEF1FF"/><circle cx="'+(cx+14)+'" cy="'+(cy-6)+'" r="4.5" fill="#EEF1FF"/>'+
+    '<path d="'+brows+'" fill="none" stroke="#A3AEDD" stroke-width="3" stroke-linecap="round"/>'+
+    '<path d="'+mouth+'" fill="none" stroke="#EEF1FF" stroke-width="3.5" stroke-linecap="round"/>';
+}
+var FIGS={
+1:{cap:'Toda mensagem viaja de um emissor a um receptor, dentro de um contexto. O ruído pode atrapalhar no caminho.',
+ svg:'<svg viewBox="0 0 360 200" role="img" aria-label="Esquema: o emissor envia uma mensagem ao receptor dentro de um contexto, com ruído no caminho">'+AH+
+  '<rect x="6" y="6" width="348" height="188" rx="22" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="7 5"/>'+
+  '<text class="m" x="180" y="28">CONTEXTO: lugar, momento e relação</text>'+
+  person(58,52,'#8B5CF6')+'<text x="58" y="132">Emissor</text>'+
+  person(302,52,'#22D3EE')+'<text x="302" y="132">Receptor</text>'+
+  '<rect x="116" y="58" width="128" height="44" rx="14" fill="#1B2560" stroke="#22D3EE" stroke-width="2"/><text x="180" y="85">Mensagem</text>'+
+  '<line x1="88" y1="80" x2="112" y2="80" stroke="#22D3EE" stroke-width="3" marker-end="url(#ah)"/>'+
+  '<line x1="248" y1="80" x2="272" y2="80" stroke="#22D3EE" stroke-width="3" marker-end="url(#ah)"/>'+
+  '<path d="M140 156l9-10 9 20 9-20 9 20 9-20 9 20 9-20 9 20 9-10" fill="none" stroke="#FBBF24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+
+  '<text x="180" y="184" style="fill:#FBBF24">ruído atrapalha</text></svg>'},
+2:{cap:'Escutar de verdade é atenção total, silêncio respeitoso e perguntas que convidam a pessoa a contar mais.',
+ svg:'<svg viewBox="0 0 360 200" role="img" aria-label="Uma pessoa conta um problema e a outra pergunta como ela se sentiu">'+
+  person(52,36,'#8B5CF6')+person(308,36,'#22D3EE')+
+  '<rect x="92" y="14" width="140" height="36" rx="14" fill="#1B2560" stroke="#8B5CF6" stroke-width="2"/><text x="162" y="37">Tive um problema…</text>'+
+  '<rect x="128" y="62" width="150" height="36" rx="14" fill="#1B2560" stroke="#22D3EE" stroke-width="2"/><text x="203" y="85">Como você se sentiu?</text>'+
+  '<rect x="10" y="124" width="108" height="56" rx="16" fill="rgba(52,211,153,.14)" stroke="#34D399" stroke-width="2"/><text x="64" y="148">Atenção</text><text x="64" y="166">total</text>'+
+  '<rect x="126" y="124" width="108" height="56" rx="16" fill="rgba(52,211,153,.14)" stroke="#34D399" stroke-width="2"/><text x="180" y="148">Sem</text><text x="180" y="166">interromper</text>'+
+  '<rect x="242" y="124" width="108" height="56" rx="16" fill="rgba(52,211,153,.14)" stroke="#34D399" stroke-width="2"/><text x="296" y="148">Perguntas</text><text x="296" y="166">abertas</text></svg>'},
+3:{cap:'Frases claras dizem o quê, quando e para quem. Volume, ritmo e entonação também carregam significado.',
+ svg:'<svg viewBox="0 0 360 210" role="img" aria-label="Comparação entre uma frase confusa e uma frase clara, e três ondas representando volume, ritmo e entonação">'+
+  '<rect x="8" y="10" width="166" height="108" rx="18" fill="#1B2560" stroke="#FB7185" stroke-width="2"/><text x="91" y="34" style="fill:#FB7185">✕ Confuso</text>'+
+  '<text x="91" y="62">“Me manda</text><text x="91" y="80">aquilo quando</text><text x="91" y="98">der.”</text>'+
+  '<rect x="186" y="10" width="166" height="108" rx="18" fill="#1B2560" stroke="#34D399" stroke-width="2"/><text x="269" y="34" style="fill:#34D399">✓ Claro</text>'+
+  '<text x="269" y="62">“Envie o resumo</text><text x="269" y="80">até quarta,</text><text x="269" y="98">às 10h.”</text>'+
+  '<path d="M26 160q10-26 20 0t20 0t20 0t20 0" fill="none" stroke="#8B5CF6" stroke-width="3.5" stroke-linecap="round"/>'+
+  '<path d="M146 160q7-14 14 0t14 0t14 0t14 0t14 0t14 0" fill="none" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round"/>'+
+  '<path d="M262 160q10-8 20 0t20 0t20 0t20 0" fill="none" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round"/>'+
+  '<text class="m" x="66" y="198">volume</text><text class="m" x="180" y="198">ritmo</text><text class="m" x="302" y="198">entonação</text></svg>'},
+4:{cap:'O rosto e o corpo contam parte da história. Observe o conjunto de sinais antes de concluir algo.',
+ svg:'<svg viewBox="0 0 360 200" role="img" aria-label="Três rostos: sorrindo, em dúvida e preocupado">'+
+  face(60,70,'M44 86Q60 102 76 86','M44 52L56 49M64 49L76 52')+
+  face(180,70,'M166 90L194 90','M164 52L176 50M184 46L198 50')+
+  face(300,70,'M284 96Q300 80 316 96','M278 50L292 46M322 50L308 46')+
+  '<text x="60" y="140">Sorriso</text><text class="m" x="60" y="158">acolhe</text>'+
+  '<text x="180" y="140">Dúvida</text><text class="m" x="180" y="158">pede explicação</text>'+
+  '<text x="300" y="140">Tensão</text><text class="m" x="300" y="158">pede cuidado</text>'+
+  '<text class="m" x="180" y="188">gestos, postura, olhar e voz completam o recado</text></svg>'},
+5:{cap:'Quem olha o número de um lado enxerga 6, do outro enxerga 9. Os dois estão certos, do lugar onde estão.',
+ svg:'<svg viewBox="0 0 360 200" role="img" aria-label="Duas pessoas olham o mesmo número de lados opostos: uma vê 6 e a outra vê 9">'+AH+
+  person(52,78,'#8B5CF6')+person(308,78,'#22D3EE')+
+  '<rect x="12" y="14" width="80" height="34" rx="14" fill="#1B2560" stroke="#8B5CF6" stroke-width="2"/><text x="52" y="36">Vejo 6</text>'+
+  '<rect x="268" y="14" width="80" height="34" rx="14" fill="#1B2560" stroke="#22D3EE" stroke-width="2"/><text x="308" y="36">Vejo 9</text>'+
+  '<circle cx="180" cy="98" r="52" fill="#1B2560" stroke="#C9B8FF" stroke-width="2.5"/><text x="180" y="124" style="font-size:72px;fill:#C9B8FF">6</text>'+
+  '<line x1="86" y1="112" x2="122" y2="106" stroke="#8B5CF6" stroke-width="3" stroke-dasharray="5 5"/>'+
+  '<line x1="274" y1="112" x2="238" y2="106" stroke="#22D3EE" stroke-width="3" stroke-dasharray="5 5"/>'+
+  '<text class="m" x="180" y="184">empatia é olhar do lugar do outro</text></svg>'},
+6:{cap:'A comunicação assertiva fica no meio do caminho: nem se cala, nem ataca.',
+ svg:'<svg viewBox="0 0 360 200" role="img" aria-label="Uma escala entre passivo, assertivo e agressivo, com o assertivo no centro">'+
+  '<defs><linearGradient id="sp" x1="0" x2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset=".5" stop-color="#34D399"/><stop offset="1" stop-color="#FB7185"/></linearGradient></defs>'+
+  '<text x="52" y="52">Passivo</text><text x="180" y="52" style="font-size:16px;fill:#34D399">Assertivo</text><text x="308" y="52">Agressivo</text>'+
+  '<rect x="16" y="68" width="328" height="24" rx="12" fill="url(#sp)"/>'+
+  '<circle cx="180" cy="80" r="16" fill="#0A0F2C" stroke="#fff" stroke-width="3"/><path d="M172 80l6 6 10-12" fill="none" stroke="#34D399" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+  '<text x="52" y="124">“Tudo bem…”</text><text class="m" x="52" y="143">se cala</text>'+
+  '<text x="180" y="124">“Eu me sinto…”</text><text class="m" x="180" y="143">fala com respeito</text>'+
+  '<text x="308" y="124">“Você nunca…”</text><text class="m" x="308" y="143">ataca</text>'+
+  '<text class="m" x="180" y="182">firmeza + gentileza</text></svg>'},
+7:{cap:'Resolver um conflito é subir degrau por degrau, começando por respirar.',
+ svg:'<svg viewBox="0 0 360 200" role="img" aria-label="Escada com cinco degraus: respirar, escolher o momento, falar dos fatos, escutar e chegar a um acordo">'+
+  [['Respirar',44],['Momento',64],['Fatos',84],['Escutar',104],['Acordo',124]].map(function(s,i){
+    var x=8+i*70, h=s[1], y=164-h;
+    return '<rect x="'+x+'" y="'+y+'" width="64" height="'+h+'" rx="10" fill="'+(i===4?'rgba(52,211,153,.22)':'#1B2560')+'" stroke="'+(i===4?'#34D399':'#8B5CF6')+'" stroke-width="2"/>'+
+      '<circle cx="'+(x+32)+'" cy="'+(y+22)+'" r="13" fill="'+(i===4?'#34D399':'#8B5CF6')+'"/><text x="'+(x+32)+'" y="'+(y+27)+'" style="fill:#04112E">'+(i+1)+'</text>'+
+      '<text x="'+(x+32)+'" y="184" style="font-size:12px">'+s[0]+'</text>';
+  }).join('')+
+  '<path d="M312 40V14l22 8-22 8" fill="#34D399" stroke="#34D399" stroke-width="2" stroke-linejoin="round"/></svg>'},
+8:{cap:'O mesmo “ok” pode soar frio ou simpático. No texto, o tom precisa estar escrito.',
+ svg:'<svg viewBox="0 0 360 210" role="img" aria-label="Dois celulares: um com a mensagem fria “ok.” e outro com “Ok! Combinado” e um rosto sorrindo">'+
+  '<rect x="30" y="10" width="120" height="156" rx="18" fill="#131B46" stroke="#A3AEDD" stroke-width="2.5"/><rect x="74" y="16" width="32" height="5" rx="2.5" fill="#A3AEDD"/>'+
+  '<rect x="42" y="40" width="70" height="30" rx="12" fill="#2A3470"/><text x="77" y="60">Vamos?</text>'+
+  '<rect x="78" y="86" width="60" height="30" rx="12" fill="#6B7280"/><text x="108" y="106">ok.</text>'+
+  '<text x="90" y="144" style="font-size:22px;fill:#FBBF24">?</text>'+
+  '<rect x="210" y="10" width="120" height="156" rx="18" fill="#131B46" stroke="#A3AEDD" stroke-width="2.5"/><rect x="254" y="16" width="32" height="5" rx="2.5" fill="#A3AEDD"/>'+
+  '<rect x="222" y="40" width="70" height="30" rx="12" fill="#2A3470"/><text x="257" y="60">Vamos?</text>'+
+  '<rect x="222" y="86" width="100" height="30" rx="12" fill="#0E7490"/><text x="272" y="106" style="font-size:12px">Ok! Combinado</text>'+
+  '<circle cx="280" cy="140" r="12" fill="#FBBF24"/><circle cx="276" cy="137" r="1.8" fill="#04112E"/><circle cx="284" cy="137" r="1.8" fill="#04112E"/><path d="M274 143q6 6 12 0" fill="none" stroke="#04112E" stroke-width="2" stroke-linecap="round"/>'+
+  '<text x="90" y="194" style="fill:#FBBF24">Parece frio</text><text x="270" y="194" style="fill:#34D399">Claro e gentil</text></svg>'}
+};
+
+/* ============ CONTEÚDO: PERGUNTAS ============ */
+/* [aula, pergunta, correta, errada1, errada2, errada3, explicação] */
+var QRAW=[
+[1,'Qual alternativa lista os elementos básicos da comunicação?','Emissor, mensagem, receptor e contexto.','Apenas emissor e receptor, sem mensagem.','Voz, rosto, texto e imagem.','Falante, ouvinte e silêncio.','Toda comunicação envolve quem envia, o que é enviado, quem recebe e a situação em que isso acontece.'],
+[1,'Na comunicação, o receptor é:','Quem recebe e interpreta a mensagem.','Quem sempre começa a conversa.','O aparelho ou canal por onde a mensagem passa.','Quem fala mais alto.','O receptor interpreta a mensagem e pode responder, virando emissor. Quem começa ou fala mais alto não define o papel.'],
+[1,'Ana disse “chego daqui a pouco”. Bruno entendeu uma hora, mas ela quis dizer 10 minutos. O que causou o mal-entendido?','Uma mensagem imprecisa, interpretada em um contexto diferente.','Bruno é distraído por natureza.','O celular de Ana estava com defeito.','Mensagens curtas sempre dão errado.','“Daqui a pouco” não tem medida exata. Cada pessoa interpretou com a sua referência, e uma hora combinada resolveria.'],
+[1,'O que é “ruído” na comunicação?','Qualquer coisa que atrapalha a mensagem, como barulho, distração ou pressa.','Apenas música alta.','A resposta que o receptor dá.','O assunto da conversa.','Ruído é tudo que dificulta a mensagem de chegar inteira, e não só barulho de verdade.'],
+[1,'Quando podemos dizer que a comunicação deu certo?','Quando o receptor entende a mensagem como o emissor pretendia.','Quando o emissor termina de falar.','Quando o receptor concorda com tudo.','Quando a conversa é longa.','A comunicação se completa na compreensão. Concordar não é preciso, e falar muito não garante entendimento.'],
+
+[2,'Um amigo está contando um problema. Qual atitude demonstra escuta ativa?','Prestar atenção e fazer perguntas para compreender melhor.','Interromper para contar uma história própria.','Continuar olhando para o celular.','Mudar de assunto.','Escuta ativa é atenção total ao outro. Interromper, olhar o celular ou mudar de assunto mostram desinteresse.'],
+[2,'Qual é um exemplo de pergunta aberta que demonstra interesse?','“Como você se sentiu nessa situação?”','“Foi ruim, né?”','“Você vai fazer isso mesmo?”','“Já terminou de falar?”','Perguntas abertas não se respondem só com sim ou não, e por isso convidam a pessoa a contar mais.'],
+[2,'Parafrasear, na escuta ativa, significa:','Repetir com suas palavras o que entendeu, para confirmar.','Repetir exatamente as mesmas palavras, como um eco.','Corrigir o jeito de a pessoa falar.','Resumir o que ouviu para dar a sua opinião.','Parafrasear confirma que você entendeu certo. Copiar palavra por palavra ou opinar logo em seguida não cumpre esse papel.'],
+[2,'Durante a explicação de um professor, qual atitude mostra escuta ativa?','Olhar para ele, anotar e esperar para perguntar quando terminar um ponto.','Conversar baixinho com o colega.','Terminar as frases dele para acelerar.','Mexer no celular, ouvindo de canto de ouvido.','Atenção, anotações e perguntas na hora certa mostram respeito e ajudam a aprender.'],
+[2,'Uma colega desabafa e você já pensa no conselho que vai dar. Qual é o risco?','Deixar de prestar atenção no que ela realmente diz e sente.','Nenhum, aconselhar rápido sempre ajuda.','Ela vai falar mais.','A conversa fica melhor por ficar mais curta.','Quando pensamos na resposta, paramos de escutar. Muitas vezes a pessoa precisa primeiro ser compreendida.'],
+
+[3,'Qual pedido é o mais claro?','“Pode me entregar o resumo até quarta, às 10h?”','“Me dá aquilo depois.”','“Resolve isso aí quando puder.”','“Você sabe o que eu quero, né?”','O pedido claro diz o que, para quando e a que horas. Os outros obrigam o outro a adivinhar.'],
+[3,'Sobre o tom de voz, é correto afirmar que:','Ritmo, volume e entonação podem mudar o sentido da mesma frase.','Só importa quando alguém grita.','Não altera o sentido se as palavras forem educadas.','Só é importante para quem canta.','“Tudo bem.” dito com carinho ou com irritação quer dizer coisas bem diferentes.'],
+[3,'Qual frase evita a generalização que provoca defesa?','“Hoje você chegou atrasado e isso me atrapalhou.”','“Você sempre se atrasa.”','“Você nunca respeita ninguém.”','“Todo mundo já cansou de você.”','Falar de um fato específico é mais justo e mais fácil de resolver. “Sempre” e “nunca” soam como ataque.'],
+[3,'Ao explicar algo para quem não conhece o assunto, o melhor é:','Usar palavras simples, frases curtas e exemplos.','Usar termos técnicos para impressionar.','Falar bem rápido para não cansar.','Falar tudo de uma vez, sem pausas.','Quem explica quer ser entendido. Linguagem simples e exemplos ajudam o outro a acompanhar.'],
+[3,'Para que servem as pausas na fala?','Dar tempo para o outro entender e destacar ideias importantes.','Mostrar que você esqueceu o que ia dizer.','Indicar que a conversa acabou.','Irritar o receptor.','Pausas organizam a fala e dão ritmo. Sem elas, o receptor se perde.'],
+
+[4,'A comunicação não verbal inclui:','Gestos, postura, expressões faciais e contato visual.','Apenas a escrita.','Só as palavras faladas.','Somente mensagens digitais.','Comunicamos também sem palavras, com o corpo, o rosto e o olhar.'],
+[4,'Quando as palavras e o corpo se contradizem, as pessoas tendem a:','Acreditar mais nos sinais do corpo e no tom de voz.','Confiar apenas nas palavras.','Não perceber a diferença.','Rir da situação.','O corpo costuma revelar emoções difíceis de esconder, por isso pesa mais na interpretação.'],
+[4,'Alguém diz “claro, pode falar”, mas está de braços cruzados e rosto fechado. Qual é o melhor cuidado?','Observar o conjunto de sinais e perguntar, sem concluir sozinho.','Concluir com certeza que a pessoa está mentindo.','Ignorar os sinais do corpo.','Tomar um único gesto como prova absoluta.','Sinais são pistas, não provas. Braços cruzados também podem ser frio ou hábito. Perguntar é o jeito mais seguro.'],
+[4,'Em uma entrevista de estágio, qual postura transmite atenção e respeito?','Corpo voltado para o entrevistador, contato visual natural e rosto receptivo.','Olhar o celular entre as perguntas.','Ficar curvado, olhando para o chão o tempo todo.','Balançar a perna e olhar para o teto.','Postura aberta e olhar natural mostram interesse. Os outros sinais passam desinteresse ou insegurança.'],
+[4,'Um mesmo gesto pode ter significados diferentes entre culturas?','Sim, gestos mudam de sentido conforme a cultura e o contexto.','Não, todos os gestos são universais.','Só quando acompanhados de palavras.','Apenas entre crianças.','Um gesto simpático em um país pode ser ofensivo em outro. Vale ter cuidado ao viajar ou falar com quem vem de outra cultura.'],
+
+[5,'Empatia é:','Tentar compreender o que o outro sente e pensa, do ponto de vista dele.','Concordar com tudo que a pessoa diz.','Sentir pena de quem sofre.','Dar sempre um conselho.','Empatia é compreender. Não exige concordar, olhar de cima ou aconselhar.'],
+[5,'Uma colega tirou nota baixa e está triste. Qual resposta é empática?','“Deve ser frustrante, você estudou bastante. Quer conversar?”','“Nota não é tudo, supera.”','“Eu já tirei pior e fiquei bem.”','“Te avisei que ia ser difícil.”','A resposta empática reconhece o sentimento e se oferece para ouvir. As outras minimizam, comparam ou cobram.'],
+[5,'Ter empatia significa concordar com a pessoa?','Não, é possível compreender os sentimentos sem concordar.','Sim, sempre.','Sim, mas só com amigos.','Sim, mas só com a família.','Podemos entender por que alguém se sente de um jeito sem concordar com a atitude dessa pessoa.'],
+[5,'Um motorista de ônibus está ríspido. Qual atitude é mais empática?','Considerar que ele pode estar cansado ou estressado e manter a gentileza, sem aceitar desrespeito.','Responder no mesmo tom.','Reclamar alto para todos ouvirem.','Ignorá-lo e falar mal dele depois.','Imaginar o que pode estar por trás ajuda a reagir com calma. Empatia não obriga a aceitar grosseria.'],
+[5,'Validar o sentimento de alguém é:','Reconhecer que o que ela sente faz sentido para ela, sem precisar resolver.','Dizer que ela está exagerando.','Mudar de assunto para animá-la.','Provar que ela está errada.','Validar acolhe. Frases como “faz sentido você se sentir assim” ajudam a pessoa a se abrir.'],
+
+[6,'Comunicação assertiva é:','Expressar opiniões e necessidades com clareza e respeito.','Impor a própria opinião.','Concordar sempre para evitar briga.','Evitar falar para não magoar.','Assertividade fica no meio: nem se cala como o passivo, nem ataca como o agressivo.'],
+[6,'Qual é um exemplo de mensagem em primeira pessoa?','“Eu me sinto chateado quando meus planos mudam sem aviso.”','“Você é muito desorganizado.”','“Todo mundo acha você egoísta.”','“Você nunca avisa nada.”','A mensagem em primeira pessoa descreve o que você sente, e não rotula o outro, e por isso gera menos defesa.'],
+[6,'Alguém pede algo emprestado e você não quer emprestar. Qual resposta é assertiva?','“Prefiro não emprestar isso, mas posso ajudar de outro jeito.”','“Claro...” (e fica contrariado).','“Nem pensar, você estraga tudo.”','Não responder e fingir que não viu.','A resposta assertiva diz “não” com clareza e gentileza e ainda oferece uma alternativa.'],
+[6,'O estilo de comunicação passivo costuma gerar:','Ressentimento acumulado, porque as necessidades não são ditas.','Respeito automático.','Conflitos resolvidos rapidamente.','Mais clareza nas conversas.','Quem se cala sempre guarda o desconforto, e ele costuma explodir depois.'],
+[6,'Ser assertivo garante que o outro vai concordar?','Não, garante apenas que você se expressou com respeito. O outro pode discordar.','Sim, sempre.','Sim, se você falar mais alto.','Sim, se o outro for mais novo.','Assertividade trata do seu jeito de comunicar, não de controlar a resposta do outro.'],
+
+[7,'Quando você está muito emocionado numa discussão, o primeiro passo é:','Respirar e esperar a emoção baixar.','Falar tudo que pensa enquanto sente.','Mandar uma mensagem longa na hora.','Procurar uma plateia que concorde.','Com a raiva alta, dizemos o que não queremos. Esperar um pouco torna a conversa mais produtiva.'],
+[7,'Qual abordagem foca no problema, e não na pessoa?','“Quando a tarefa atrasa, o grupo todo é prejudicado. Como podemos resolver?”','“Você é irresponsável.”','“Sempre sobra pra mim por sua culpa.”','“Típico de você.”','Falar do fato e propor solução evita que o outro se sinta atacado e se defenda.'],
+[7,'Escutar a versão do outro em um conflito serve para:','Entender os motivos e buscar soluções que atendam os dois lados.','Esperar a hora de interromper.','Provar que ele errou.','Ganhar tempo para preparar a defesa.','O objetivo do diálogo é resolver, não vencer. Escutar revela informações que mudam a solução.'],
+[7,'A conversa direta não resolveu e a tensão aumenta. O melhor a fazer é:','Pedir ajuda de uma pessoa de confiança, como um professor ou responsável, para mediar.','Insistir mais alto.','Espalhar o caso para os colegas tomarem partido.','Cortar contato sem explicar.','Um mediador ajuda a organizar a conversa. Insistir, expor ou sumir só piora.'],
+[7,'Qual frase ajuda a baixar a tensão em uma discussão?','“Entendo que você ficou chateado. Podemos conversar e achar uma solução juntos?”','“Você está exagerando, relaxa.”','“Ninguém aguenta você.”','“Faz o que quiser, então.”','Reconhecer o sentimento e propor um caminho conjunto convida o outro ao diálogo.'],
+
+[8,'Por que mensagens de texto causam mais mal-entendidos?','Faltam tom de voz, expressão do rosto e gestos que ajudam a interpretar.','Porque o texto é sempre mais curto.','Porque as pessoas escrevem mal.','Porque os celulares trocam palavras.','Sem voz e sem rosto, o receptor completa a mensagem com a própria imaginação, e isso gera erros.'],
+[8,'Escrever uma mensagem toda em letras MAIÚSCULAS normalmente é lido como:','Gritar ou agressividade.','Carinho.','Educação.','Seriedade neutra.','Maiúsculas em excesso passam a impressão de gritaria, mesmo quando essa não é a intenção.'],
+[8,'Você recebeu uma mensagem que pareceu rude. O que fazer antes de responder?','Respirar, reler e perguntar o que a pessoa quis dizer.','Responder com a mesma rispidez.','Sair do grupo na hora.','Mandar print para os amigos.','Perguntar evita brigas por erro de interpretação. Responder com raiva ou expor a pessoa só piora.'],
+[8,'Compartilhar o print de uma conversa privada sem permissão:','Pode expor a pessoa e quebrar a confiança.','É sempre permitido, porque a conversa foi comigo.','Só é problema se a pessoa estiver online.','Só é ruim se tiver palavrão.','Uma conversa privada pertence às duas pessoas. Repassar sem permissão pode causar constrangimento e até punições.'],
+[8,'Você vê um colega sendo humilhado em um grupo online. O que é melhor fazer?','Não participar, apoiar a pessoa, guardar as provas e avisar um adulto de confiança ou denunciar.','Curtir ou rir, para não ser o próximo.','Entrar na brincadeira.','Não fazer nada, porque não é com você.','Quem assiste e não age ajuda o ataque a continuar. Apoiar e pedir ajuda protege a vítima.']
+];
+var QUESTIONS=QRAW.map(function(r,i){return {id:i,lesson:r[0],t:r[1],ok:r[2],wrong:[r[3],r[4],r[5]],exp:r[6]};});
+
+/* ============ MISSÕES ============ */
+var MISSIONS=[
+{id:1,title:'Ouvir sem interromper',desc:'Pratique a escuta ativa em uma conversa de verdade.',steps:['Escolha alguém para conversar por pelo menos 3 minutos.','Guarde o celular e escute até a pessoa terminar cada ideia.','Faça uma pergunta sobre o que ela contou antes de falar de você.']},
+{id:2,title:'Fazer uma pergunta aberta',desc:'Uma pergunta aberta convida a pessoa a contar mais.',steps:['Pense em alguém com quem você quer conversar melhor.','Faça uma pergunta que comece com “como”, “o que” ou “por que”, e não uma de sim ou não.','Escute a resposta sem interromper.']},
+{id:3,title:'Expressar uma opinião com respeito',desc:'Diga o que você pensa sem atacar ninguém.',steps:['Escolha um assunto sobre o qual você tem opinião.','Use “Eu acho…” ou “Eu me sinto…” em vez de acusar.','Depois de falar, pergunte o que o outro pensa.']},
+{id:4,title:'Reformular uma mensagem confusa',desc:'Transforme uma frase vaga em uma frase clara.',steps:['Lembre uma mensagem sua que foi mal entendida, ou invente uma, como “me manda aquilo”.','Reescreva dizendo o quê, para quando e para quem.','Leia em voz alta e confira se alguém de fora entenderia.']},
+{id:5,title:'Resolver um pequeno desentendimento',desc:'Use o diálogo para resolver uma situação pequena.',steps:['Escolha um desentendimento simples e recente.','Espere a emoção baixar e convide a pessoa para conversar em particular.','Fale do fato e do que sentiu, escute a versão dela e combinem uma solução.']},
+{id:6,title:'Fazer um elogio específico',desc:'Elogios específicos mostram atenção e fortalecem relações.',steps:['Pense em algo que alguém fez bem esta semana.','Diga exatamente o que você gostou, e não apenas “legal”.','Observe a reação da pessoa.']},
+{id:7,title:'Dez minutos sem celular',desc:'Atenção total é uma forma de respeito.',steps:['Escolha uma conversa ou refeição com alguém.','Deixe o celular longe, virado para baixo ou em modo silencioso.','Ao final, perceba o que você notou que normalmente perderia.']},
+{id:8,title:'Parafrasear o que ouviu',desc:'Confirme se você entendeu direito.',steps:['Durante uma conversa, espere a pessoa terminar uma ideia.','Diga: “Se entendi bem, você…” com as suas palavras.','Pergunte se foi isso mesmo.']},
+{id:9,title:'Observar a linguagem corporal',desc:'Treine o olhar para os sinais do corpo, sem julgar.',steps:['Em uma conversa ou na escola, observe a postura e a expressão de alguém.','Identifique pelo menos três sinais, como olhar, mãos e ombros.','Imagine o que podem significar e, se for o caso, pergunte com gentileza.']},
+{id:10,title:'Dizer “não” com gentileza',desc:'Recusar com clareza e respeito faz parte da assertividade.',steps:['Pense em algo que você não quer ou não pode fazer.','Diga “não” de forma direta, sem inventar desculpas longas.','Se puder, ofereça uma alternativa.']},
+{id:11,title:'Reler antes de enviar',desc:'Evite mal-entendidos em mensagens digitais.',steps:['Antes de enviar três mensagens hoje, releia cada uma.','Pergunte-se como o outro vai entender o tom.','Ajuste o que puder soar ríspido ou vago.']},
+{id:12,title:'Agradecer com detalhes',desc:'Um agradecimento claro fortalece vínculos.',steps:['Lembre de alguém que ajudou você recentemente.','Diga obrigado e explique o que a ajuda significou.','Fale olhando para a pessoa ou escreva com cuidado.']}
+];
+
+/* ============ CONQUISTAS ============ */
+function nLessons(s){return Object.keys(s.lessons).length;}
+function nMissions(s){return Object.keys(s.missions).length;}
+function bestOk(s,l){var b=s.quizBest['L'+l];return !!b&&b.s/b.t>=0.8;}
+function lessonAch(s,l){return !!s.lessons[l]&&bestOk(s,l);}
+var ACH=[
+{id:'a1',name:'Primeiros Passos',desc:'Conclua a sua primeira aula.',icon:'star',ok:function(s){return nLessons(s)>=1;}},
+{id:'a2',name:'Ouvido Atento',desc:'Conclua Escuta ativa e acerte 4 de 5 no quiz da aula.',icon:'ear',ok:function(s){return lessonAch(s,2);}},
+{id:'a3',name:'Mestre das Palavras',desc:'Conclua Comunicação verbal e acerte 4 de 5 no quiz.',icon:'mic',ok:function(s){return lessonAch(s,3);}},
+{id:'a4',name:'Comunicador Empático',desc:'Conclua Empatia e acerte 4 de 5 no quiz.',icon:'heart',ok:function(s){return lessonAch(s,5);}},
+{id:'a5',name:'Voz Assertiva',desc:'Conclua Comunicação assertiva e acerte 4 de 5 no quiz.',icon:'shield',ok:function(s){return lessonAch(s,6);}},
+{id:'a6',name:'Detetive dos Conflitos',desc:'Conclua Conflitos e diálogo e acerte 4 de 5 no quiz.',icon:'duo',ok:function(s){return lessonAch(s,7);}},
+{id:'a7',name:'Explorador Digital',desc:'Conclua Comunicação digital e acerte 4 de 5 no quiz.',icon:'phone',ok:function(s){return lessonAch(s,8);}},
+{id:'a8',name:'Mestre da Comunicação',desc:'Conclua as 8 aulas e acerte 4 de 5 em todos os quizzes de aula.',icon:'trophy',ok:function(s){for(var i=1;i<=8;i++){if(!lessonAch(s,i))return false;}return true;}},
+{id:'a9',name:'Mão na Massa',desc:'Conclua 5 missões práticas.',icon:'flag',ok:function(s){return nMissions(s)>=5;}},
+{id:'a10',name:'Missão Cumprida',desc:'Conclua as 12 missões práticas.',icon:'target',ok:function(s){return nMissions(s)>=MISSIONS.length;}},
+{id:'a11',name:'Gabarito',desc:'Acerte todas as perguntas de um quiz de aula.',icon:'zap',ok:function(s){for(var i=1;i<=8;i++){var b=s.quizBest['L'+i];if(b&&b.s===b.t)return true;}return false;}},
+{id:'a12',name:'Em Alta',desc:'Chegue ao nível 5.',icon:'flame',ok:function(s){return levelInfo(s.xp).lv>=5;}}
+];
+
+/* ============ ESTADO ============ */
+function defaults(){return {v:1,name:'',xp:0,lessons:{},missions:{},missionSteps:{},mastered:{},quizBest:{},quizPlays:0,quizBonus:{},ach:{},settings:{sound:true}};}
+function isObj(o){return o&&typeof o==='object'&&!Array.isArray(o);}
+function load(){
+  var d=defaults(), raw=readStore(); if(!raw) return d;
+  try{
+    var p=JSON.parse(raw); if(!isObj(p)) return d;
+    if(typeof p.name==='string') d.name=p.name.slice(0,20);
+    if(typeof p.xp==='number'&&isFinite(p.xp)&&p.xp>0) d.xp=Math.floor(p.xp);
+    ['lessons','missions','missionSteps','mastered','quizBest','quizBonus','ach'].forEach(function(k){ if(isObj(p[k])) d[k]=p[k]; });
+    if(typeof p.quizPlays==='number') d.quizPlays=p.quizPlays;
+    if(isObj(p.settings)&&typeof p.settings.sound==='boolean') d.settings.sound=p.settings.sound;
+  }catch(e){}
+  return d;
+}
+var state=load();
+function save(){ writeStore(JSON.stringify(state)); }
+
+function levelInfo(xp){
+  var lv=1; for(var i=0;i<LEVELS.length;i++){ if(xp>=LEVELS[i].xp) lv=LEVELS[i].n; }
+  var cur=LEVELS[lv-1], nxt=LEVELS[lv]||null;
+  var pct=nxt?Math.round((xp-cur.xp)/(nxt.xp-cur.xp)*100):100;
+  return {lv:lv,cur:cur,nxt:nxt,pct:pct,left:nxt?nxt.xp-xp:0};
+}
+function overallPct(){
+  var a=nLessons(state)/LESSONS.length, b=nMissions(state)/MISSIONS.length, c=Object.keys(state.mastered).length/QUESTIONS.length;
+  return Math.round((a+b+c)/3*100);
+}
+
+/* ============ UTILIDADES ============ */
+function $(s){return document.querySelector(s);}
+function esc(s){var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+var LETTERS=['A','B','C','D'];
+
+/* ============ SOM ============ */
+var actx=null;
+function beep(kind){
+  if(!state.settings.sound) return;
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!actx) actx=new AC(); if(actx.state==='suspended') actx.resume();
+    var seq=kind==='ok'?[[660,0],[880,.11]]:kind==='bad'?[[220,0],[170,.12]]:kind==='lvl'?[[523,0],[659,.1],[784,.2],[1047,.3]]:[[600,0]];
+    seq.forEach(function(n){
+      var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+n[1];
+      o.type='sine';o.frequency.value=n[0];g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.18);
+      o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.2);
+    });
+  }catch(e){}
+}
+
+/* ============ AVISOS ============ */
+function toast(msg,kind,ic){
+  var box=$('#toasts'); if(!box) return;
+  var el=document.createElement('div'); el.className='toast '+(kind||''); el.innerHTML=(ic?icon(ic):'')+'<span>'+esc(msg)+'</span>';
+  box.appendChild(el); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },3100);
+}
+function showModal(o){
+  var m=$('#modal');
+  m.innerHTML='<div class="modal-bg" data-act="modalBg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><h2 id="mt">'+esc(o.title)+'</h2><p class="muted">'+esc(o.text)+'</p><div class="stack"><button class="btn danger block" id="modalOk" data-act="modalOk">'+esc(o.ok)+'</button><button class="btn block" id="modalCancel" data-act="modalCancel">Cancelar</button></div></div></div>';
+  modalCb=o.onOk; var c=$('#modalCancel'); if(c) c.focus();
+}
+var modalCb=null;
+function closeModal(){ $('#modal').innerHTML=''; modalCb=null; }
+
+/* ============ XP E CONQUISTAS ============ */
+function addXP(n){
+  if(!(n>0)) return;
+  var before=levelInfo(state.xp).lv; state.xp+=n;
+  var a=levelInfo(state.xp); save();
+  toast('+'+n+' XP','xp','zap');
+  if(a.lv>before){ toast('Nível '+a.lv+': '+a.cur.name+'!','lvl','trophy'); beep('lvl'); }
+}
+function checkAch(){
+  var got=[];
+  ACH.forEach(function(a){
+    if(!state.ach[a.id]&&a.ok(state)){ state.ach[a.id]=Date.now(); got.push(a); }
+  });
+  if(got.length){ save(); got.forEach(function(a,i){ setTimeout(function(){ toast('Conquista: '+a.name,'ach','star'); },350*(i+1)); }); }
+  return got;
+}
+function afterChange(){ checkAch(); }
+
+/* ============ NAVEGAÇÃO / UI STATE ============ */
+var ui={tab:'home',lesson:null,playTab:'quiz',openMission:null,quiz:null,act:null};
+var TABS=[['home','Início','home'],['learn','Aprender','book'],['play','Jogar','play'],['profile','Perfil','user']];
+
+function headerHTML(){
+  var L=levelInfo(state.xp);
+  return '<div class="brand">'+LOGO+'<div><b>CONECTA</b><small>A Arte de se Comunicar</small></div></div><span class="chip">'+icon('zap')+'Nv '+L.lv+' · '+state.xp+' XP</span>';
+}
+function navHTML(){
+  return TABS.map(function(t){return '<button data-act="nav" data-a="'+t[0]+'"'+(ui.tab===t[0]?' aria-current="page"':'')+'>'+icon(t[2])+'<span>'+t[1]+'</span></button>';}).join('');
+}
+function greeting(){
+  var h=new Date().getHours(); return h<5?'Boa noite':h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+}
+function nextLesson(){ for(var i=0;i<LESSONS.length;i++){ if(!state.lessons[LESSONS[i].id]) return LESSONS[i]; } return null; }
+function nextMission(){ for(var i=0;i<MISSIONS.length;i++){ if(!state.missions[MISSIONS[i].id]) return MISSIONS[i]; } return null; }
+var TIPS=['Antes de responder uma mensagem que te irritou, espere um minuto e releia.','Perguntas abertas começam com “como”, “o que” e “por que”.','Quem escuta com atenção costuma ser lembrado como alguém que se importa.','Uma boa pausa vale mais que uma frase apressada.','Dizer o que você sente é diferente de dizer o que o outro é.','Na dúvida sobre o tom de uma mensagem, pergunte em vez de supor.','Elogios específicos têm mais valor que elogios genéricos.'];
+
+/* ============ TELAS ============ */
+function viewHome(){
+  var L=levelInfo(state.xp), nl=nextLesson(), nm=nextMission();
+  var name=state.name?esc(state.name):'explorador(a)';
+  var cta=nl
+    ?'<button class="btn primary block" data-act="openLesson" data-a="'+nl.id+'">Continuar: aula '+nl.id+'</button>'
+    :'<button class="btn primary block" data-act="startQuiz" data-a="mix">Jogar quiz misto</button>';
+  var ctaSub=nl?'<p class="small" style="color:#D5DBFF">Próxima aula: '+esc(nl.title)+'</p>':'<p class="small" style="color:#D5DBFF">Você concluiu todas as aulas. Continue treinando no quiz e nas missões.</p>';
+  var lastAch=ACH.filter(function(a){return state.ach[a.id];}).sort(function(a,b){return state.ach[b.id]-state.ach[a.id];})[0];
+  return '<section class="hero"><div><p class="small" style="color:#D5DBFF">'+greeting()+',</p><h1>'+name+'</h1></div>'+
+    '<div><p class="lvl">Nível '+L.lv+' · '+esc(L.cur.name)+'</p><div class="bar" style="margin:8px 0" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+L.pct+'"><i style="width:'+L.pct+'%"></i></div>'+
+    '<div class="meta"><span>'+state.xp+' XP</span><span>'+(L.nxt?'faltam '+L.left+' XP para '+esc(L.nxt.name):'Nível máximo alcançado')+'</span></div></div>'+
+    '<div class="stats"><div class="stat"><b>'+nLessons(state)+'/'+LESSONS.length+'</b><span>aulas</span></div><div class="stat"><b>'+nMissions(state)+'/'+MISSIONS.length+'</b><span>missões</span></div><div class="stat"><b>'+Object.keys(state.ach).length+'/'+ACH.length+'</b><span>conquistas</span></div></div>'+
+    ctaSub+cta+'</section>'+
+    '<div class="grid2"><button class="card tile" data-act="startQuiz" data-a="mix"><span class="ico">'+icon('zap')+'</span><div><h2>Quiz misto</h2><p class="muted small">'+MIX_SIZE+' perguntas sorteadas de todas as aulas.</p></div></button>'+
+    (nm?'<button class="card tile" data-act="goMission" data-a="'+nm.id+'"><span class="ico">'+icon('flag')+'</span><div><h2>Missão sugerida</h2><p class="muted small">'+esc(nm.title)+' · +'+MISSION_XP+' XP</p></div></button>'
+       :'<div class="card tile"><span class="ico">'+icon('check')+'</span><div><h2>Missões completas</h2><p class="muted small">Você cumpriu todas as missões práticas.</p></div></div>')+'</div>'+
+    '<section class="card"><div class="row"><div class="grow"><h2>Progresso geral</h2><p class="muted small">Aulas, missões e perguntas dominadas</p></div><b style="font-family:var(--display);font-size:26px">'+overallPct()+'%</b></div><div class="bar" style="margin-top:12px"><i style="width:'+overallPct()+'%"></i></div></section>'+
+    (lastAch?'<section class="card row"><span class="ico" style="color:var(--warn)">'+icon(lastAch.icon)+'</span><div class="grow"><p class="eyebrow">Última conquista</p><h2 style="margin:2px 0 0;font-size:18px">'+esc(lastAch.name)+'</h2></div></section>':'')+
+    '<section class="card row" style="align-items:flex-start"><span class="ico">'+icon('bulb')+'</span><div class="grow"><p class="eyebrow">Dica do dia</p><p>'+TIPS[new Date().getDate()%TIPS.length]+'</p></div></section>';
+}
+
+function viewLearn(){
+  if(ui.lesson) return viewLesson();
+  var nl=nextLesson();
+  return '<div><h1 style="font-size:30px">Aprender</h1><p class="muted">Oito aulas curtas com exemplo e atividade. Concluir cada uma vale '+LESSON_XP+' XP.</p></div>'+
+    '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+LESSONS.length+'" aria-valuenow="'+nLessons(state)+'"><i style="width:'+Math.round(nLessons(state)/LESSONS.length*100)+'%"></i></div>'+
+    '<div class="stack">'+LESSONS.map(function(L){
+      var done=!!state.lessons[L.id], isNext=nl&&nl.id===L.id;
+      return '<button class="item-card" data-act="openLesson" data-a="'+L.id+'"><span class="ico">'+icon(L.icon)+'</span><div class="grow"><h3>'+L.id+'. '+esc(L.title)+'</h3><p>'+esc(L.sub)+'</p></div>'+
+        (done?'<span class="badge ok">Concluída</span>':isNext?'<span class="badge next">Próxima</span>':'<span class="badge">+'+LESSON_XP+' XP</span>')+'</button>';
+    }).join('')+'</div>';
+}
+
+function curLesson(){ return LESSONS.filter(function(l){return l.id===ui.lesson;})[0]; }
+
+function actHTML(L){
+  var a=L.activity, st=ui.act, h='';
+  if(a.type==='classify'){
+    var n=Object.keys(st.items).length;
+    h+='<p class="act-prompt">'+esc(a.prompt)+'</p><div class="stack">';
+    a.items.forEach(function(it,i){
+      var done=st.items[i]!==undefined, wr=st.wrong[i]||{};
+      h+='<div class="item'+(done?' ok':'')+(st.shake===i?' shake':'')+'" id="it'+i+'"><p>'+esc(it.t)+'</p><div class="cats">';
+      a.cats.forEach(function(c,ci){
+        var cls='cat'+(done&&ci===it.a?' on':'')+(wr[ci]?' bad':'');
+        h+='<button class="'+cls+'" data-act="classify" data-a="'+i+'" data-b="'+ci+'"'+((done||wr[ci])?' disabled':'')+'>'+esc(c)+'</button>';
+      });
+      h+='</div></div>';
+    });
+    h+='</div><p class="small muted" aria-live="polite">'+n+' de '+a.items.length+' corretas'+(st.done?'. Atividade concluída!':'')+'</p>';
+  } else {
+    h+='<p class="act-prompt">'+esc(a.prompt)+'</p><div class="stack">';
+    a.options.forEach(function(o,i){
+      var picked=st.picked[i], cls='opt'+(picked?(o.ok?' ok':' bad'):'')+(st.done&&!picked?' dim':'');
+      h+='<button class="'+cls+'" data-act="choose" data-a="'+i+'"'+((st.done||picked)?' disabled':'')+'><span class="l">'+LETTERS[i]+'</span><span>'+esc(o.t)+'</span></button>';
+      if(picked) h+='<div class="fb '+(o.ok?'ok':'bad')+'"><b>'+(o.ok?'Isso mesmo!':'Ainda não.')+'</b>'+esc(o.fb)+'</div>';
+    });
+    h+='</div>';
+  }
+  return h;
+}
+function cwHTML(L){
+  var done=!!state.lessons[L.id];
+  if(done) return '<button class="btn block" disabled>'+icon('check')+' Aula concluída</button>';
+  if(ui.act.done) return '<button class="btn primary block" data-act="completeLesson">Concluir aula (+'+LESSON_XP+' XP)</button>';
+  return '<button class="btn block" disabled>Faça a atividade para concluir</button>';
+}
+function refreshLesson(){
+  var L=curLesson(); if(!L||ui.tab!=='learn') return;
+  var a=$('#act'), c=$('#cw'); if(a) a.innerHTML=actHTML(L); if(c) c.innerHTML=cwHTML(L);
+}
+function viewLesson(){
+  var L=curLesson(), idx=LESSONS.indexOf(L);
+  var prev=LESSONS[idx-1], next=LESSONS[idx+1];
+  return '<button class="back" data-act="closeLesson">'+icon('back')+' Todas as aulas</button>'+
+  '<div class="l-hero"><span class="ico">'+icon(L.icon)+'</span><div><p class="eyebrow">Aula '+L.id+' de '+LESSONS.length+'</p><h1>'+esc(L.title)+'</h1></div></div>'+
+  '<section class="card prose"><h2>Entenda</h2><p>'+esc(L.intro)+'</p>'+(FIGS[L.id]?'<figure class="fig">'+FIGS[L.id].svg+'<figcaption>'+esc(FIGS[L.id].cap)+'</figcaption></figure>':'')+'<ul class="terms">'+L.points.map(function(p){return '<li><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></li>';}).join('')+'</ul><div class="callout"><b>Lembre-se: </b>'+L.more+'</div></section>'+
+  '<section class="card prose"><h2>Na prática</h2><div class="example"><b>'+esc(L.example.title)+'</b><p>'+esc(L.example.text)+'</p></div></section>'+
+  '<section class="card stack"><h2 style="margin:0">Atividade</h2><div id="act" class="stack">'+actHTML(L)+'</div></section>'+
+  '<div id="cw">'+cwHTML(L)+'</div>'+
+  '<button class="btn block" data-act="startQuiz" data-a="L'+L.id+'">'+icon('zap')+' Treinar com o quiz desta aula</button>'+
+  '<div class="pager">'+(prev?'<button class="btn" data-act="openLesson" data-a="'+prev.id+'">'+icon('back')+' Anterior</button>':'<span></span>')+(next?'<button class="btn" data-act="openLesson" data-a="'+next.id+'">Próxima '+icon('next')+'</button>':'<span></span>')+'</div>';
+}
+
+/* --- Jogar --- */
+function viewPlay(){
+  var seg='<div class="seg" role="group" aria-label="Escolha"><button data-act="playTab" data-a="quiz" aria-pressed="'+(ui.playTab==='quiz')+'">Quiz</button><button data-act="playTab" data-a="missions" aria-pressed="'+(ui.playTab==='missions')+'">Missões</button></div>';
+  if(ui.playTab==='quiz'&&ui.quiz) return viewQuizRun();
+  return '<div><h1 style="font-size:30px">Jogar</h1><p class="muted">Teste o que aprendeu e pratique no dia a dia.</p></div>'+seg+(ui.playTab==='quiz'?viewQuizMenu():viewMissions());
+}
+function bestTxt(key){ var b=state.quizBest[key]; return b?'Melhor: '+b.s+'/'+b.t:'Ainda não jogado'; }
+function viewQuizMenu(){
+  var mastered=Object.keys(state.mastered).length;
+  return '<section class="card stack"><div><h2>Como funciona</h2><p class="muted small">Responda, veja a explicação e avance. Você ganha '+Q_XP+' XP na primeira vez que acerta cada pergunta e '+QUIZ_BONUS+' XP extras ao acertar 80% ou mais em um quiz de aula, uma vez por aula. Repetir perguntas já dominadas é treino sem XP. Perguntas dominadas: <b>'+mastered+'/'+QUESTIONS.length+'</b>.</p></div></section>'+
+  '<button class="item-card" data-act="startQuiz" data-a="mix"><span class="ico">'+icon('zap')+'</span><div class="grow"><h3>Desafio misto</h3><p>'+MIX_SIZE+' perguntas sorteadas · '+bestTxt('mix')+'</p></div>'+icon('next')+'</button>'+
+  '<div class="stack">'+LESSONS.map(function(L){
+    var n=QUESTIONS.filter(function(q){return q.lesson===L.id;}).length;
+    return '<button class="item-card" data-act="startQuiz" data-a="L'+L.id+'"><span class="ico">'+icon(L.icon)+'</span><div class="grow"><h3>'+esc(L.title)+'</h3><p>'+n+' perguntas · '+bestTxt('L'+L.id)+'</p></div>'+icon('next')+'</button>';
+  }).join('')+'</div>';
+}
+function startQuiz(key){
+  var pool;
+  if(key==='mix') pool=shuffle(QUESTIONS).slice(0,MIX_SIZE);
+  else{ var n=parseInt(key.slice(1),10); pool=shuffle(QUESTIONS.filter(function(q){return q.lesson===n;})); }
+  var qs=pool.map(function(q){
+    var opts=shuffle([{t:q.ok,ok:true}].concat(q.wrong.map(function(w){return {t:w,ok:false};})));
+    return {id:q.id,t:q.t,opts:opts,exp:q.exp,okText:q.ok};
+  });
+  ui.quiz={key:key,qs:qs,i:0,score:0,answered:false,picked:-1,xpGain:0,scored:{},finished:false,bonus:0};
+  ui.tab='play'; ui.playTab='quiz'; render();
+}
+function quizTitle(key){ if(key==='mix') return 'Desafio misto'; var L=LESSONS[parseInt(key.slice(1),10)-1]; return L?L.title:'Quiz'; }
+function viewQuizRun(){
+  var q=ui.quiz; if(q.finished) return viewQuizResult();
+  var cur=q.qs[q.i], total=q.qs.length, done=q.i+(q.answered?1:0);
+  var h='<div class="qhead"><span>'+esc(quizTitle(q.key))+'</span><span>Pergunta '+(q.i+1)+' de '+total+' · '+q.score+' pts</span></div>'+
+   '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+total+'" aria-valuenow="'+done+'"><i style="width:'+Math.round(done/total*100)+'%"></i></div>'+
+   '<h2 class="qtext">'+esc(cur.t)+'</h2><div class="stack">';
+  cur.opts.forEach(function(o,i){
+    var cls='opt';
+    if(q.answered){ if(o.ok) cls+=' ok'; else if(i===q.picked) cls+=' bad'; else cls+=' dim'; }
+    h+='<button class="'+cls+'" data-act="answer" data-a="'+i+'"'+(q.answered?' disabled':'')+'><span class="l">'+LETTERS[i]+'</span><span>'+esc(o.t)+'</span></button>';
+  });
+  h+='</div>';
+  if(q.answered){
+    var ok=cur.opts[q.picked].ok;
+    h+='<div class="fb '+(ok?'ok':'bad')+'" aria-live="polite"><b>'+(ok?'Correto!':'Não foi dessa vez.')+'</b>'+(ok?'':'A resposta certa é: “'+esc(cur.okText)+'” ')+esc(cur.exp)+'</div>';
+  }
+  h+='<button class="btn primary block" data-act="nextQ"'+(q.answered?'':' disabled')+'>'+(q.answered?(q.i<total-1?'Próxima pergunta':'Ver resultado'):'Responda para continuar')+'</button>'+
+     '<button class="back" data-act="quitQuiz" style="align-self:center">Sair do quiz</button>';
+  return h;
+}
+function viewQuizResult(){
+  var q=ui.quiz, total=q.qs.length, pct=Math.round(q.score/total*100);
+  var stars=pct>=90?3:pct>=60?2:pct>0?1:0;
+  var msg=pct===100?'Perfeito! Você domina este assunto.':pct>=80?'Muito bem! Você entendeu o essencial.':pct>=50?'Bom começo. Revise a aula e tente de novo.':'Revise a aula com calma e tente outra vez. Errar faz parte de aprender.';
+  var starH=''; for(var i=0;i<3;i++) starH+='<span class="'+(i<stars?'on':'')+'">'+icon('star')+'</span>';
+  var L=q.key==='mix'?null:LESSONS[parseInt(q.key.slice(1),10)-1];
+  return '<section class="card stack" style="align-items:stretch"><p class="eyebrow" style="text-align:center">'+esc(quizTitle(q.key))+'</p>'+
+   '<div class="score-ring" style="--p:'+pct+'"><b>'+q.score+'/'+total+'</b></div>'+
+   '<div class="stars" aria-label="'+stars+' de 3 estrelas">'+starH+'</div>'+
+   '<p style="text-align:center;font-weight:600">'+msg+'</p>'+
+   '<p class="xpgain">+'+q.xpGain+' XP</p>'+
+   (q.xpGain===0?'<p class="small muted" style="text-align:center">Você já tinha dominado estas perguntas. O XP é dado na primeira vez que acerta cada uma.</p>':'')+
+   (q.bonus?'<p class="small" style="text-align:center;color:var(--cyan)">Inclui '+q.bonus+' XP de bônus por acertar 80% ou mais.</p>':'')+
+   '</section>'+
+   '<button class="btn primary block" data-act="restartQuiz">'+icon('refresh')+' Jogar novamente</button>'+
+   (L?'<button class="btn block" data-act="openLesson" data-a="'+L.id+'">Rever a aula</button>':'')+
+   '<button class="btn block" data-act="quitQuiz">Escolher outro quiz</button>';
+}
+function answer(i){
+  var q=ui.quiz; if(!q||q.answered||q.finished) return;
+  var cur=q.qs[q.i], opt=cur.opts[i]; if(!opt) return;
+  q.answered=true; q.picked=i;
+  if(!q.scored[cur.id]){
+    q.scored[cur.id]=true;
+    if(opt.ok){
+      q.score++; beep('ok');
+      if(!state.mastered[cur.id]){ state.mastered[cur.id]=1; q.xpGain+=Q_XP; addXP(Q_XP); }
+    } else beep('bad');
+  }
+  save(); afterChange(); render(true);
+}
+function nextQ(){
+  var q=ui.quiz; if(!q||!q.answered) return;
+  if(q.i<q.qs.length-1){ q.i++; q.answered=false; q.picked=-1; render(); return; }
+  finishQuiz();
+}
+function finishQuiz(){
+  var q=ui.quiz, total=q.qs.length;
+  var b=state.quizBest[q.key];
+  if(!b||q.score/total>b.s/b.t) state.quizBest[q.key]={s:q.score,t:total};
+  state.quizPlays=(state.quizPlays||0)+1;
+  if(q.key!=='mix'&&q.score/total>=0.8&&!state.quizBonus[q.key]){ state.quizBonus[q.key]=1; q.bonus=QUIZ_BONUS; q.xpGain+=QUIZ_BONUS; addXP(QUIZ_BONUS); }
+  q.finished=true; save(); afterChange(); beep('lvl'); render();
+}
+
+/* --- Missões --- */
+function viewMissions(){
+  return '<p class="muted small">Pratique no mundo real. Marque cada passo e conclua a missão para ganhar '+MISSION_XP+' XP. Cada missão rende XP uma única vez.</p><div class="stack">'+
+  MISSIONS.map(function(m){
+    var done=!!state.missions[m.id], open=ui.openMission===m.id, st=state.missionSteps[m.id]||[];
+    var all=m.steps.every(function(_,i){return st[i];});
+    var h='<div class="mission'+(done?' done':'')+'" id="m'+m.id+'"><button class="m-head" data-act="toggleMission" data-a="'+m.id+'" aria-expanded="'+open+'"><span class="check'+(done?' on':'')+'">'+icon('check')+'</span><div class="grow"><h3>'+esc(m.title)+'</h3><p class="small muted">'+(done?'Concluída':'+'+MISSION_XP+' XP')+'</p></div>'+icon(open?'back':'next')+'</button>';
+    if(open){
+      h+='<div class="m-body"><p class="muted small">'+esc(m.desc)+'</p>'+m.steps.map(function(s,i){
+        return '<button class="step" data-act="stepToggle" data-a="'+m.id+'" data-b="'+i+'"'+(done?' disabled':'')+'><span class="check'+((st[i]||done)?' on':'')+'">'+icon('check')+'</span><span>'+esc(s)+'</span></button>';
+      }).join('')+
+      (done?'<button class="btn block" disabled>'+icon('check')+' Missão concluída</button>':'<button class="btn primary block" data-act="completeMission" data-a="'+m.id+'"'+(all?'':' disabled')+'>'+(all?'Concluir missão (+'+MISSION_XP+' XP)':'Marque todos os passos para concluir')+'</button>')+'</div>';
+    }
+    return h+'</div>';
+  }).join('')+'</div>';
+}
+
+/* --- Perfil --- */
+function viewProfile(){
+  var L=levelInfo(state.xp), initial=(state.name||'C').charAt(0).toUpperCase();
+  var best=Object.keys(state.quizBest).length;
+  return '<section class="card stack"><div class="row"><span class="avatar">'+esc(initial)+'</span><div class="grow"><h1 style="font-size:26px">'+(state.name?esc(state.name):'Sem nome ainda')+'</h1><p class="muted">Nível '+L.lv+' · '+esc(L.cur.name)+'</p></div></div>'+
+    '<label for="nameInput" class="small muted">Seu nome ou apelido</label><div class="field"><input id="nameInput" type="text" maxlength="20" autocomplete="nickname" placeholder="Como quer ser chamado(a)?" value="'+esc(state.name)+'"><button class="btn primary" data-act="saveName">Salvar</button></div></section>'+
+  '<section class="card stack"><h2 style="margin:0">Progresso</h2><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+overallPct()+'"><i style="width:'+overallPct()+'%"></i></div><p class="small muted">Progresso geral: <b style="color:var(--fg)">'+overallPct()+'%</b> (aulas, missões e perguntas dominadas)</p>'+
+    '<div class="bar thin"><i style="width:'+L.pct+'%"></i></div><p class="small muted">'+(L.nxt?'Faltam '+L.left+' XP para o nível '+L.nxt.n+' ('+esc(L.nxt.name)+')':'Você chegou ao nível máximo.')+'</p>'+
+    '<div class="pstats"><div class="pstat"><b>'+state.xp+'</b><span>XP total</span></div><div class="pstat"><b>'+L.lv+'</b><span>Nível atual</span></div>'+
+    '<div class="pstat"><b>'+nLessons(state)+'/'+LESSONS.length+'</b><span>Aulas concluídas</span></div><div class="pstat"><b>'+nMissions(state)+'/'+MISSIONS.length+'</b><span>Missões concluídas</span></div>'+
+    '<div class="pstat"><b>'+Object.keys(state.mastered).length+'/'+QUESTIONS.length+'</b><span>Perguntas dominadas</span></div><div class="pstat"><b>'+(state.quizPlays||0)+'</b><span>Quizzes jogados</span></div></div></section>'+
+  '<section class="card stack"><h2 style="margin:0">Pontuação nos quizzes</h2>'+(best?'<ul class="levels">'+['mix'].concat(LESSONS.map(function(l){return 'L'+l.id;})).filter(function(k){return state.quizBest[k];}).map(function(k){var b=state.quizBest[k];return '<li><span>'+esc(quizTitle(k))+'</span><b>'+b.s+'/'+b.t+'</b></li>';}).join('')+'</ul>':'<p class="muted small">Você ainda não jogou nenhum quiz. Vá em Jogar e comece.</p>')+'</section>'+
+  '<section class="card stack"><h2 style="margin:0">Conquistas · '+Object.keys(state.ach).length+'/'+ACH.length+'</h2><div class="ach-grid">'+ACH.map(function(a){
+    var got=!!state.ach[a.id];
+    return '<div class="ach '+(got?'got':'lock')+'"><span class="ico">'+icon(got?a.icon:'lock')+'</span><h3>'+esc(a.name)+'</h3><p>'+esc(a.desc)+'</p></div>';
+  }).join('')+'</div></section>'+
+  '<section class="card stack"><h2 style="margin:0">Níveis</h2><ul class="levels">'+LEVELS.map(function(v){
+    return '<li class="'+(v.n===L.lv?'cur':v.n<L.lv?'past':'')+'"><span>'+v.n+'. '+esc(v.name)+'</span><span>'+v.xp+' XP</span></li>';
+  }).join('')+'</ul></section>'+
+  '<section class="card stack"><h2 style="margin:0">Configurações</h2><button class="switch" role="switch" data-act="toggleSound" aria-checked="'+state.settings.sound+'"><span>Efeitos sonoros</span><i></i></button>'+
+    '<p class="small muted">Para instalar no iPhone: abra no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início.</p></section>'+
+  '<section class="card stack"><h2 style="margin:0">Reiniciar progresso</h2><p class="small muted">Apaga XP, aulas, missões, quizzes e conquistas deste aparelho. Essa ação não pode ser desfeita.</p><button class="btn danger block" data-act="askReset">Reiniciar progresso</button></section>';
+}
+
+var VIEWS={home:viewHome,learn:viewLearn,play:viewPlay,profile:viewProfile};
+
+function render(keep){
+  var y=window.scrollY||0;
+  $('#top').innerHTML=headerHTML();
+  $('#nav').innerHTML=navHTML();
+  $('#warn').innerHTML=memOnly?'<div class="warnbar" role="status">O armazenamento do navegador não está disponível. O jogo funciona, mas o progresso só vale enquanto esta página estiver aberta.</div>':'';
+  var v=$('#view'); v.innerHTML=VIEWS[ui.tab]();
+  if(!keep){ v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); }
+  window.scrollTo(0,keep?y:0);
+}
+
+/* ============ AÇÕES ============ */
+var A={
+  nav:function(t){ ui.tab=t; if(t==='play'&&ui.quiz&&ui.quiz.finished) ui.quiz=null; render(); },
+  openLesson:function(id){
+    id=+id; ui.tab='learn'; ui.lesson=id; ui.act={done:false,items:{},wrong:{},picked:{},shake:-1}; render();
+  },
+  closeLesson:function(){ ui.lesson=null; render(); },
+  classify:function(i,c){
+    var L=curLesson(), st=ui.act; if(!L||!st||st.done) return;
+    i=+i; c=+c; var it=L.activity.items[i]; if(!it||st.items[i]!==undefined) return;
+    if(c===it.a){ st.items[i]=c; st.shake=-1; beep('ok'); }
+    else{ st.wrong[i]=st.wrong[i]||{}; st.wrong[i][c]=true; st.shake=i; beep('bad'); }
+    if(Object.keys(st.items).length===L.activity.items.length) st.done=true;
+    refreshLesson();
+  },
+  choose:function(i){
+    var L=curLesson(), st=ui.act; if(!L||!st||st.done) return;
+    i=+i; var o=L.activity.options[i]; if(!o||st.picked[i]) return;
+    st.picked[i]=true; if(o.ok){ st.done=true; beep('ok'); } else beep('bad');
+    refreshLesson();
+  },
+  completeLesson:function(){
+    var L=curLesson(); if(!L||!ui.act||!ui.act.done||state.lessons[L.id]) return;
+    state.lessons[L.id]=Date.now(); save(); addXP(LESSON_XP); afterChange(); beep('ok'); render(true);
+  },
+  startQuiz:startQuiz,
+  playTab:function(t){ ui.playTab=t; render(); },
+  answer:function(i){ answer(+i); },
+  nextQ:nextQ,
+  restartQuiz:function(){ if(ui.quiz) startQuiz(ui.quiz.key); },
+  quitQuiz:function(){ ui.quiz=null; ui.playTab='quiz'; render(); },
+  goMission:function(id){ ui.tab='play'; ui.playTab='missions'; ui.openMission=+id; ui.quiz=null; render(); },
+  toggleMission:function(id){ id=+id; ui.openMission=ui.openMission===id?null:id; render(true); },
+  stepToggle:function(id,i){
+    id=+id; i=+i; if(state.missions[id]) return;
+    var m=MISSIONS.filter(function(x){return x.id===id;})[0]; if(!m||!m.steps[i]) return;
+    var st=state.missionSteps[id]; if(!Array.isArray(st)) st=state.missionSteps[id]=[];
+    st[i]=!st[i]; save(); render(true);
+  },
+  completeMission:function(id){
+    id=+id; if(state.missions[id]) return;
+    var m=MISSIONS.filter(function(x){return x.id===id;})[0]; if(!m) return;
+    var st=state.missionSteps[id]||[]; if(!m.steps.every(function(_,i){return st[i];})) return;
+    state.missions[id]=Date.now(); save(); addXP(MISSION_XP); afterChange(); beep('ok'); render(true);
+  },
+  saveName:function(){
+    var el=$('#nameInput'); if(!el) return;
+    state.name=el.value.replace(/\s+/g,' ').trim().slice(0,20); save(); toast(state.name?'Nome salvo: '+state.name:'Nome removido','xp','check'); render(true);
+  },
+  toggleSound:function(){ state.settings.sound=!state.settings.sound; save(); if(state.settings.sound) beep('ok'); render(true); },
+  askReset:function(){
+    showModal({title:'Apagar todo o progresso?',text:'Você vai perder XP, nível, aulas, missões, resultados de quizzes e conquistas deste aparelho. Isso não pode ser desfeito.',ok:'Sim, apagar tudo',onOk:function(){
+      state=defaults(); save(); ui={tab:'home',lesson:null,playTab:'quiz',openMission:null,quiz:null,act:null};
+      closeModal(); render(); toast('Progresso reiniciado','xp','refresh');
+    }});
+  },
+  modalOk:function(){ var cb=modalCb; if(cb) cb(); else closeModal(); },
+  modalCancel:closeModal,
+  modalBg:function(a,b,el,ev){ if(ev&&ev.target===el) closeModal(); }
+};
+
+document.addEventListener('click',function(e){
+  var el=e.target.closest?e.target.closest('[data-act]'):null; if(!el||el.disabled) return;
+  var f=A[el.getAttribute('data-act')]; if(f) f(el.getAttribute('data-a'),el.getAttribute('data-b'),el,e);
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&$('#modal').firstChild) closeModal();
+  if(e.key==='Enter'&&e.target&&e.target.id==='nameInput'){ e.preventDefault(); A.saveName(); }
+});
+
+window.__conecta={state:function(){return state;},ui:function(){return ui;},LESSONS:LESSONS,QUESTIONS:QUESTIONS,MISSIONS:MISSIONS,ACH:ACH,LEVELS:LEVELS,levelInfo:levelInfo,isMemOnly:function(){return memOnly;}};
+
+render();
+checkAch();
+if(Object.keys(state.ach).length) { /* conquistas já existentes não geram aviso */ }
+
+try{
+  if('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel="manifest"]')){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+}catch(e){}
+})();
+</script>
+
+</body>
+</html>
